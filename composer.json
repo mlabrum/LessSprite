@@ -1,0 +1,17 @@
+{
+    "name": "mlabrum/less-sprite",
+    "description": "Easy Spriting with LessPHP",
+    "authors": [
+        {
+            "name": "Matt Labrum",
+            "email": "matt@labrum.me"
+        }
+    ],
+    "minimum-stability": "stable",
+    "suggest": {
+	"leafo/lessphp": "v0.3.*"
+    },
+     "autoload": {
+        "psr-0": {"LessSprite": "lib/"}
+    }
+}
