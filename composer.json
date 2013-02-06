@@ -11,7 +11,10 @@
     "suggest": {
 	"leafo/lessphp": "v0.3.*"
     },
+    "require-dev": {
+	"leafo/lessphp": "dev-master"
+    },
      "autoload": {
-        "psr-0": {"LessSprite": "lib/"}
+        "psr-0": {"LessSprite": "src/"}
     }
 }
