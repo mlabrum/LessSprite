@@ -65,8 +65,5 @@ class Padding{
 		}elseif($args[0] == "number"){
 			$this->top = $this->bottom = $this->left = $this->right = (int) $args[1];
 		}
-		
-		var_dump($this);
-		exit;
 	}
 }
