@@ -3,16 +3,39 @@
 namespace LessSprite\Parser;
 
 class SpriteArgs{
-	public $name;
+	
+	/**
+	 * Name of the sprite group
+	 * @var string
+	 */
+	public $spritename;
+	
+	/**
+	 * Relative path of the image
+	 * @var string 
+	 */
 	public $imagesrc;
 	
-	public $_width;
-	public $_height;	
+	/**
+	 * The width of the image
+	 * @var int
+	 */
+	public $width;
 	
+	/**
+	 * The height of the image
+	 * @var int
+	 */
+	public $height;	
+	
+	/**
+	 * Parses lessphp arguments into an object
+	 * @param array $args
+	 */
 	public function __construct($args){
 		if($args[0] == 'list'){
 			$items		= $args[2];
-			$mapping	= Array('name', 'imagesrc', '_width', '_height');
+			$mapping	= Array('spritename', 'imagesrc', 'width', 'height');
 
 			foreach($items as $i => $item){
 				$name = $mapping[$i];
@@ -21,22 +44,6 @@ class SpriteArgs{
 				}else{
 					$this->$name = $item[1]; // Int
 				}
-			}
-		}
-	}
-	
-	
-	public function __get($name){
-		if($name == 'width' || $name == 'height'){
-			if(empty($this->_width) || empty($this->_height)){
-				// Automaticly calculate
-			}
-			
-			
-			if($name == 'width'){
-				return $this->_width;
-			}elseif($name == 'height'){
-				return $this->_height;
 			}
 		}
 	}

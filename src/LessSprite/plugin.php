@@ -14,7 +14,19 @@ class Plugin{
 	 * Contains an array of sprite groups
 	 * @var array
 	 */
-	private $spriteGroups = Array();
+	private $spriteGroups		= Array();
+	
+	/**
+	 * Base path of images
+	 * @var string 
+	 */
+	public $image_base_path	= "";
+	
+	/**
+	 * Http base path of images
+	 * @var string
+	 */
+	public $http_base_path = "";
 	
 	/**
 	 * Parses a sprite
@@ -29,17 +41,20 @@ class Plugin{
 	 */
 	public function addSprite($unparsed_args, $less){
 		$args			= new Parser\SpriteArgs($unparsed_args);
-		$padding		= $this->padNext;
+		$padding		= is_null($this->padNext) ? new Parser\Padding(Array()) : $this->padNext;
 		$this->padNext	= null; //reset padNext
 		
-		/*
-			We need to handle both normal sprites and larger @2x sprites
-			this means adding the background-size property to translate it back to 1x
-		 */
-		// TODO
-		// background: url(sprite.png) no-repeat -100px 0;
-		// Set Background-size to width and height of sprite
-		return "a";
+		// Set the base path
+		$args->imagesrc = ($this->image_base_path != '' ? $this->image_base_path . "/" : "") . $args->imagesrc;
+		
+		if(!isset($this->spriteGroups[$args->spritename])){
+			$this->spriteGroups[$args->spritename] = new SpriteGroup($args->spritename, new Packer\Vertical());
+		}
+		
+		// Add the sprite into the group and get the positioning information
+		$positioning = $this->spriteGroups[$args->spritename]->add(new Sprite($args, $padding));		
+		
+		return  "url(" . $this->http_base_path . $this->spriteGroups[$args->spritename]->getRelativeFileName() . ") no-repeat " . (-$positioning['left'] + $padding->left) . "px " . (-$positioning['top'] + $padding->top) . "px";
 	}
 	
 	/**
@@ -69,7 +84,21 @@ class Plugin{
 	 * @param array $unparsed_args
 	 */
 	public function backgroundSize($unparsed_args){
-		
+		if(isset($unparsed_args[2][0])){
+			$name = $unparsed_args[2][0];
+			
+			if(isset($this->spriteGroups[$name])){
+				$size = $this->spriteGroups[$name]->getBackgroundSize();
+				
+				// Generate the sprite group
+				$this->spriteGroups[$name]->generate();
+				return $size['width'] . "px " . $size['height'] . "px";
+			}else{
+				// Error
+			}	
+		}else{
+			// Error
+		}
 	}
 	
 	/**
