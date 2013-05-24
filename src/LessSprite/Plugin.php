@@ -37,6 +37,12 @@ class Plugin {
      * @var array 
      */
     public $padding_default = null;
+    
+    /**
+     * Add image size?
+     * @var type 
+     */
+    public $add_image_size = false;
 
     /**
      * Parses a sprite
@@ -60,10 +66,22 @@ class Plugin {
             $this->spriteGroups[$args->spritename] = new SpriteGroup($args->spritename, new Packer\Vertical());
         }
 
-        // Add the sprite into the group and get the positioning information
-        $positioning = $this->spriteGroups[$args->spritename]->add(new Sprite($args, $padding));
+        $sprite = new Sprite($args, $padding);
 
-        return "url(" . $this->http_base_path . $this->spriteGroups[$args->spritename]->getRelativeFileName() . ") no-repeat " . (-$positioning['left'] + $padding->left) . "px " . (-$positioning['top'] + $padding->top) . "px";
+        // Add the sprite into the group and get the positioning information
+        $positioning = $this->spriteGroups[$args->spritename]->add($sprite);
+
+        $posTop = -$positioning['top'] + $padding->top;
+        $posLeft = -$positioning['left'] + $padding->left;
+
+        $css = 'url(' . $this->http_base_path . $this->spriteGroups[$args->spritename]->getRelativeFileName() . ') no-repeat ' . ($posLeft ? $posLeft . 'px' : 0) . " " . ($posTop ? $posTop . 'px' : 0);
+
+        if ($this->add_image_size) {
+            $sizes = $sprite->getImageSize();
+            $css .= '; width: ' . $sizes['width'] . 'px; height: ' . $sizes['height'] . 'px';
+        }
+
+        return $css;
     }
 
     /**
@@ -116,6 +134,7 @@ class Plugin {
      */
     public function register(\lessc $less) {
         $less->registerFunction("sprite", Array($this, 'addSprite'));
+        $less->registerFunction("sprite-wrap", Array($this, 'addSpriteWrap'));
         $less->registerFunction("sprite-pad", Array($this, 'padNext'));
         $less->registerFunction("sprite-background-size", Array($this, 'backgroundSize'));
     }
