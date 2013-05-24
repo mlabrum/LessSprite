@@ -17,11 +17,17 @@ class SpriteGroup {
     private $name;
 
     /**
+     * The plugin
+     * @var Plugin
+     */
+    private $plugin;
+
+    /**
      * List of sprites to include in the image
      * @var array
      */
     private $sprites;
-    
+
     /**
      * Last modification time of the sprites
      * @var int
@@ -34,9 +40,10 @@ class SpriteGroup {
      */
     private $hasGenerated = false;
 
-    public function __construct($name, Packer\PackerInterface $packer) {
+    public function __construct($name, \LessSprite\Plugin $plugin, Packer\PackerInterface $packer) {
         $this->name = $name;
         $this->packer = $packer;
+        $this->plugin = $plugin;
         $this->cachetime = time();
     }
 
@@ -71,18 +78,14 @@ class SpriteGroup {
         return $this->name . ($this->cachetime ? '.' . $this->cachetime : null) . ".png";
     }
 
-    public function getBaseDir() {
-        $sprites = array_values($this->sprites);
-        return dirname($sprites[0]->getImagePath()) . "/";
-    }
-
     /**
      * Generates and outputs the sprite image
+     * @return bool TRUE on success or FALSE on failure.
      */
     public function generate() {
         if (!$this->hasGenerated) {
             $sprites = array_values($this->sprites);
-            $base_path = $this->getBaseDir();
+            $base_path = $this->plugin->image_base_path;
 
             $canvas = imagecreatetruecolor($this->packer->getRealTotalWidth(), $this->packer->getRealTotalHeight());
 
@@ -92,17 +95,11 @@ class SpriteGroup {
             $trans_color = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
             imagefill($canvas, 0, 0, $trans_color);
 
-            $maxmtime = 0;
-
             // Copy the sprites onto the canvas
             foreach ($sprites as $sprite) {
                 if ($i = $sprite->getImage()) {
                     $size = $sprite->getImageRealSize();
                     imagecopy($canvas, $i, $sprite->real_left, $sprite->real_top, 0, 0, $size['width'], $size['height']);
-                    $mtime = $sprite->getImageMtime();
-                    if ($maxmtime < $mtime) {
-                        $maxmtime = $mtime;
-                    }
                 }
             }
 
@@ -111,8 +108,6 @@ class SpriteGroup {
             //Clear older image
             array_map('unlink', glob($base_path . $this->name . '.*.png'));
 
-            $this->cachetime = $mtime;
-            
             // Output the image
             return imagepng($canvas, $base_path . $this->getRelativeFileName());
         }

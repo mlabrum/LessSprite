@@ -147,14 +147,6 @@ class Sprite {
     public function getImagePath() {
         return $this->args->imagesrc;
     }
-    
-    /**
-     * Return the file last modified time
-     * @return int
-     */
-    public function getImageMtime() {
-        return filemtime($this->args->imagesrc);
-    }
 
     /**
      * Returns a unique name for the sprite from all the attributes

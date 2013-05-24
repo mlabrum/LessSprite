@@ -66,10 +66,10 @@ class Plugin {
         $padding = is_null($this->padNext) ? new Parser\Padding(array($this->padding_default)) : $this->padNext;
         $this->padNext = null; //reset padNext
         // Set the base path
-        $args->imagesrc = ($this->image_base_path != '' ? $this->image_base_path . "/" : "") . $args->imagesrc;
+        $args->imagesrc = ($this->image_base_path != '' ? $this->image_base_path : "") . $args->imagesrc;
 
         if (!isset($this->spriteGroups[$args->spritename])) {
-            $this->spriteGroups[$args->spritename] = new SpriteGroup($args->spritename, new Packer\Vertical());
+            $this->spriteGroups[$args->spritename] = new SpriteGroup($args->spritename, $this, new Packer\Vertical());
         }
 
         $this->lastSprite = $sprite = new Sprite($args, $padding);
@@ -90,6 +90,18 @@ class Plugin {
         return $css;
     }
 
+    /**
+     * Parses a wrapped sprite
+     * Takes a lesscss format of
+     * sprite-wrap('sprite-name', 'relative/to/parsingless/imagefile' [, width, height, top position, left position])
+     * 
+     * Width and height are optional unless you're using a 2x image then they will be mandatory to generate the background-size of the sprite correctly
+     * Top and Left position are optional too, since you are not centering the wrapped sprite
+     * 
+     * @param array $unparsed_args
+     * @param \lessc  $less
+     * @return string
+     */
     public function addSpriteWrap($unparsed_args, $less) {
         $args = new Parser\SpriteWrapArgs($unparsed_args);
 
