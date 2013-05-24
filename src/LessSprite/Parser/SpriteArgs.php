@@ -27,6 +27,12 @@ class SpriteArgs {
      * @var int
      */
     public $height;
+    
+    /**
+     * The used arguments
+     * @var string
+     */
+    protected $args;
 
     /**
      * Parses lessphp arguments into an object
@@ -34,11 +40,25 @@ class SpriteArgs {
      */
     public function __construct($args) {
         if ($args[0] == 'list') {
+            $this->args = $args;
             $items = $args[2];
-            $mapping = Array('spritename', 'imagesrc', 'width', 'height');
+            $mapping = $this->readMapping();
+            $this->processMapping($items, $mapping);
+        }
+    }
 
-            foreach ($items as $i => $item) {
-                $name = $mapping[$i];
+    public function getArgs() {
+        return $this->args;
+    }
+
+    protected function readMapping() {
+        return array('spritename', 'imagesrc', 'width', 'height');
+    }
+
+    protected function processMapping($items, $mapping) {
+        foreach ($items as $i => $item) {
+            $name = $mapping[$i];
+            if(property_exists($this,$name)) {
                 if (is_array($item[2])) {
                     $this->$name = $item[2][0]; // String
                 } else {

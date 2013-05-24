@@ -84,11 +84,11 @@ class Sprite {
         $this->image_height = $this->real_image_height = $info[1];
         $this->mime = $info['mime'];
 
-        if (!is_null($this->args->width)) {
+        if ($this->args->width) {
             $this->image_width = $this->args->width;
         }
 
-        if (!is_null($this->args->height)) {
+        if ($this->args->height) {
             $this->image_height = $this->args->height;
         }
     }
@@ -146,6 +146,14 @@ class Sprite {
      */
     public function getImagePath() {
         return $this->args->imagesrc;
+    }
+    
+    /**
+     * Return the file last modified time
+     * @return int
+     */
+    public function getImageMtime() {
+        return filemtime($this->args->imagesrc);
     }
 
     /**

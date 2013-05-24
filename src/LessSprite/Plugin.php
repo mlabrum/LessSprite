@@ -11,6 +11,12 @@ class Plugin {
     private $padNext = null;
 
     /**
+     * Holds the last sprite
+     * @var Sprite
+     */
+    private $lastSprite = null;
+
+    /**
      * Contains an array of sprite groups
      * @var array
      */
@@ -37,7 +43,7 @@ class Plugin {
      * @var array 
      */
     public $padding_default = null;
-    
+
     /**
      * Add image size?
      * @var type 
@@ -66,7 +72,7 @@ class Plugin {
             $this->spriteGroups[$args->spritename] = new SpriteGroup($args->spritename, new Packer\Vertical());
         }
 
-        $sprite = new Sprite($args, $padding);
+        $this->lastSprite = $sprite = new Sprite($args, $padding);
 
         // Add the sprite into the group and get the positioning information
         $positioning = $this->spriteGroups[$args->spritename]->add($sprite);
@@ -80,6 +86,25 @@ class Plugin {
             $sizes = $sprite->getImageSize();
             $css .= '; width: ' . $sizes['width'] . 'px; height: ' . $sizes['height'] . 'px';
         }
+
+        return $css;
+    }
+
+    public function addSpriteWrap($unparsed_args, $less) {
+        $args = new Parser\SpriteWrapArgs($unparsed_args);
+
+        $css = $this->addSprite($unparsed_args, $less);
+
+        $sizes = $this->lastSprite->getImageSize();
+
+        $toppos = ($args->toppos ? $args->toppos : '50%');
+        $leftpos = ($args->leftpos ? $args->leftpos : '50%');
+
+        $mtop = round($sizes['height'] / 2, 3);
+        $mleft = round($sizes['width'] / 2, 3);
+        
+        
+        $css .= '; position: absolute; top: ' . $toppos . '; left: ' . $leftpos . '; margin-top: -' . $mtop . 'px; margin-left: -' . $mleft . 'px';
 
         return $css;
     }
