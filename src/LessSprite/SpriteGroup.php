@@ -21,6 +21,12 @@ class SpriteGroup {
      * @var array
      */
     private $sprites;
+    
+    /**
+     * Last modification time of the sprites
+     * @var int
+     */
+    private $cachetime;
 
     /**
      * Has this sprite group been generated yet
@@ -31,6 +37,7 @@ class SpriteGroup {
     public function __construct($name, Packer\PackerInterface $packer) {
         $this->name = $name;
         $this->packer = $packer;
+        $this->cachetime = time();
     }
 
     /**
@@ -61,7 +68,7 @@ class SpriteGroup {
     }
 
     public function getRelativeFileName() {
-        return $this->name . ".png";
+        return $this->name . ($this->cachetime ? '.' . $this->cachetime : null) . ".png";
     }
 
     public function getBaseDir() {
@@ -85,16 +92,27 @@ class SpriteGroup {
             $trans_color = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
             imagefill($canvas, 0, 0, $trans_color);
 
+            $maxmtime = 0;
+
             // Copy the sprites onto the canvas
             foreach ($sprites as $sprite) {
                 if ($i = $sprite->getImage()) {
                     $size = $sprite->getImageRealSize();
                     imagecopy($canvas, $i, $sprite->real_left, $sprite->real_top, 0, 0, $size['width'], $size['height']);
+                    $mtime = $sprite->getImageMtime();
+                    if ($maxmtime < $mtime) {
+                        $maxmtime = $mtime;
+                    }
                 }
             }
 
             $this->hasGenerated = true;
 
+            //Clear older image
+            array_map('unlink', glob($base_path . $this->name . '.*.png'));
+
+            $this->cachetime = $mtime;
+            
             // Output the image
             return imagepng($canvas, $base_path . $this->getRelativeFileName());
         }
