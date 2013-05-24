@@ -80,7 +80,7 @@ class Plugin {
         $posTop = -$positioning['top'] + $padding->top;
         $posLeft = -$positioning['left'] + $padding->left;
 
-        $css = 'url(' . $this->http_base_path . $this->spriteGroups[$args->spritename]->getRelativeFileName() . ') no-repeat ' . ($posLeft ? $posLeft . 'px' : 0) . " " . ($posTop ? $posTop . 'px' : 0);
+        $css = 'url(' . $this->http_base_path . $this->spriteGroups[$args->spritename]->getRelativeFileName() . ') no-repeat ' . ($posLeft ? $posLeft . 'px' : 0) . " " . ($posTop ? $posTop . 'px' : 0) . '; display: block';
 
         if ($this->add_image_size) {
             $sizes = $sprite->getImageSize();
